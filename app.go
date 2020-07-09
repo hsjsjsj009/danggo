@@ -1,8 +1,8 @@
 package danggo
 
 import (
-	"danggo/response"
 	"fmt"
+	"github.com/hsjsjsj009/danggo/response"
 	"log"
 	"net/http"
 )

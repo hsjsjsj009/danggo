@@ -1,7 +1,7 @@
 package danggo
 
 import (
-	"danggo/response"
+	"github.com/hsjsjsj009/danggo/response"
 	"net/http"
 )
 
