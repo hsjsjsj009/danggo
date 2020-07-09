@@ -1,0 +1,51 @@
+package response
+
+import "net/http"
+
+type responseObject struct {
+	header map[string]string
+	statusCode int
+}
+
+func (r responseObject) WriteResponse(writer http.ResponseWriter) ([]byte, error) {
+	return []byte{},nil
+}
+
+func (r responseObject) WriteHeader(writer http.ResponseWriter) {
+	if r.header != nil {
+		for key,value := range r.header{
+			writer.Header().Set(key,value)
+		}
+	}
+}
+
+func (r responseObject) SetHeader(m map[string]string) Response {
+	r.header = m
+	return r
+}
+
+func (r responseObject) AddHeader(key string, value string) Response {
+	if r.header == nil {
+		r.header = map[string]string{}
+	}
+	r.header[key] = value
+	return r
+}
+
+func (r responseObject) GetStatusCode() int {
+	return r.statusCode
+}
+
+func (r responseObject) SetStatusCode(i int) Response {
+	r.statusCode = i
+	return r
+}
+
+type Response interface {
+	WriteResponse(http.ResponseWriter) ([]byte,error)
+	WriteHeader(http.ResponseWriter)
+	SetHeader(map[string]string) Response
+	AddHeader(string,string) Response
+	GetStatusCode() int
+	SetStatusCode(int) Response
+}
