@@ -1,4 +1,4 @@
-module danggo
+module github.com/hsjsjsj009/danggo
 
 go 1.14
 
