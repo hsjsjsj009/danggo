@@ -5,6 +5,7 @@ import (
 	"github.com/hsjsjsj009/danggo/response"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type app struct {
@@ -25,7 +26,7 @@ func (a *app) ServeHTTP(w http.ResponseWriter, r *http.Request)  {
 		statusCode int
 	)
 	path := r.URL.Path
-	method := r.Method
+	method := strings.ToUpper(r.Method)
 	pathVar,found ,handlerObj:= ParsePath(path,a.routeHandler)
 	if !found {
 		w.WriteHeader(http.StatusNotFound)

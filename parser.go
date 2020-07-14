@@ -33,16 +33,16 @@ func checkPathConfig(path []string,pattern []string) (map[string]string,bool){
 
 	same := true
 
-	for idx,obj := range path {
+	for idx,pathString := range path {
 		patternIdx := pattern[idx]
 
-		if patternIdx == obj {
+		if patternIdx == pathString {
 			continue
 		}
 
-		if string(patternIdx[0]) == ":" && len(obj) != 0{
+		if string(patternIdx[0]) == ":" && len(pathString) != 0{
 			patternIdx = strings.Replace(patternIdx,":","",1)
-			data[patternIdx] = obj
+			data[patternIdx] = pathString
 			continue
 		}
 

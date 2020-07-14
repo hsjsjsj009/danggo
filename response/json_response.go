@@ -10,19 +10,13 @@ type jsonResponse struct {
 	Data map[string]interface{} `json:"data"`
 }
 
-func JsonResponse(data map[string]interface{}) jsonResponse{
-	return jsonResponse{Data: data}
+func JsonResponse(data map[string]interface{}) *jsonResponse{
+	obj := &jsonResponse{Data: data}
+	obj.setChild(obj)
+	return obj
 }
 
-func (j jsonResponse) AddHeader(key string,value string) Response {
-	if j.header == nil {
-		j.header = map[string]string{}
-	}
-	j.header[key] = value
-	return j
-}
-
-func (j jsonResponse) WriteResponse(w http.ResponseWriter) ([]byte,error) {
+func (j *jsonResponse) WriteResponse(w http.ResponseWriter) ([]byte,error) {
 	js,err := json.Marshal(j)
 
 	if err != nil {

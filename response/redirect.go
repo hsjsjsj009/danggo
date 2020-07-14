@@ -11,17 +11,19 @@ type redirect struct {
 	req *http.Request
 }
 
-func (r redirect) WriteResponse(writer http.ResponseWriter) ([]byte, error) {
+func (r *redirect) WriteResponse(writer http.ResponseWriter) ([]byte, error) {
 	statusCode := r.statusCode
 	if statusCode == 0 {
 		statusCode = http.StatusFound
 	}
-	http.Redirect(writer,r.req,r.url,statusCode)
+	http.Redirect(writer, r.req, r.url,statusCode)
 	return nil,nil
 }
 
-func Redirect(url string,request *http.Request) redirect {
-	return redirect{url: url,req: request}
+func Redirect(url string,request *http.Request) *redirect {
+	obj := &redirect{url: url,req: request}
+	obj.setChild(obj)
+	return obj
 }
 
 

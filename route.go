@@ -12,8 +12,8 @@ type route struct {
 
 func (r *route) Handle(function func(*HttpRequest) response.Response, method ...string) {
 	app := r.app
-	routeHandler := app.routeHandler[r.route]
-	if routeHandler == nil {
+	routeHandler,ok := app.routeHandler[r.route]
+	if !ok {
 		pathSplit := PathToSlice(r.route)
 		app.routeHandler[r.route] = &handler{handlerFunc: map[string]func(*HttpRequest) response.Response{},pathSplit: pathSplit}
 		routeHandler = app.routeHandler[r.route]
@@ -38,9 +38,13 @@ func (r *route) Put(function func(*HttpRequest) response.Response){
 }
 
 func (r *route) Delete(function func(*HttpRequest) response.Response){
-	r.Handle(function,"Delete")
+	r.Handle(function,"DELETE")
 }
 
 func (r *route) SubRoute(path string) *route {
-	return &route{app: r.app,route: r.route+path}
+	newRoute := r.route+path
+	if r.route == "/" {
+		newRoute = path
+	}
+	return &route{app: r.app,route: newRoute}
 }

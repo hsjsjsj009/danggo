@@ -104,3 +104,5 @@ modules.xml
 .history
 
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,visualstudiocode
+
+coverage.out

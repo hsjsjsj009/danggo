@@ -5,13 +5,18 @@ import "net/http"
 type responseObject struct {
 	header map[string]string
 	statusCode int
+	child Response
 }
 
-func (r responseObject) WriteResponse(writer http.ResponseWriter) ([]byte, error) {
+func (r *responseObject) setChild(child Response) {
+	r.child = child
+}
+
+func (r *responseObject) WriteResponse(writer http.ResponseWriter) ([]byte, error) {
 	return []byte{},nil
 }
 
-func (r responseObject) WriteHeader(writer http.ResponseWriter) {
+func (r *responseObject) WriteHeader(writer http.ResponseWriter) {
 	if r.header != nil {
 		for key,value := range r.header{
 			writer.Header().Set(key,value)
@@ -19,26 +24,26 @@ func (r responseObject) WriteHeader(writer http.ResponseWriter) {
 	}
 }
 
-func (r responseObject) SetHeader(m map[string]string) Response {
+func (r *responseObject) SetHeader(m map[string]string) Response {
 	r.header = m
-	return r
+	return r.child
 }
 
-func (r responseObject) AddHeader(key string, value string) Response {
+func (r *responseObject) AddHeader(key string, value string) Response {
 	if r.header == nil {
 		r.header = map[string]string{}
 	}
 	r.header[key] = value
-	return r
+	return r.child
 }
 
-func (r responseObject) GetStatusCode() int {
+func (r *responseObject) GetStatusCode() int {
 	return r.statusCode
 }
 
-func (r responseObject) SetStatusCode(i int) Response {
+func (r *responseObject) SetStatusCode(i int) Response {
 	r.statusCode = i
-	return r
+	return r.child
 }
 
 type Response interface {
