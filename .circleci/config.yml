@@ -24,9 +24,9 @@ jobs:
 
       # specify any bash command here prefixed with `run: `
       - run: mkdir -p /tmp/artifacts
-      - run: go get -t -d
-      - run: go test -coverprofile=c.out ./...
+      - run: go get -v -t -d ./...
+      - run: go test -coverprofile=c.out
       - run: go tool cover -html=c.out -o coverage.html
-      - run: mv
+      - run: mv coverage.html /tmp/artifacts
       - store_artifacts:
           path: /tmp/artifacts
