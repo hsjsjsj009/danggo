@@ -3,7 +3,7 @@ package danggo
 import "net/http"
 
 type HttpRequest struct {
-	Request *http.Request
+	*http.Request
 	pathVariable map[string]string
 }
 
