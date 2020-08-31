@@ -1,6 +1,7 @@
 package danggo
 
 import (
+	"fmt"
 	"github.com/hsjsjsj009/danggo/response"
 	"strings"
 )
@@ -10,11 +11,22 @@ type route struct {
 	route string
 }
 
+func checkPathVariable(in []string){
+	for _,variable := range in {
+		if string(variable[0]) == "<" && string(variable[len(variable)-1]) == ">"{
+			if correct,dataType := checkVariableType(variable); !correct {
+				panic(fmt.Sprintf("Unsupported type %s in %s",dataType,variable))
+			}
+		}
+	}
+}
+
 func (r *route) Handle(function func(*HttpRequest) response.Response, method ...string) {
 	app := r.app
 	routeHandler,ok := app.routeHandler[r.route]
 	if !ok {
 		pathSplit := PathToSlice(r.route)
+		checkPathVariable(pathSplit)
 		app.routeHandler[r.route] = &handler{handlerFunc: map[string]func(*HttpRequest) response.Response{},pathSplit: pathSplit}
 		routeHandler = app.routeHandler[r.route]
 	}

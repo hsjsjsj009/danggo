@@ -83,6 +83,12 @@ func (r *routeSuite) TestSubRoute() {
 	r.Equal("/asd/123",asd.route)
 }
 
+func (r *routeSuite) TestCheckPathVariable() {
+	r.Panics(func() {
+		r.route.SubRoute("/<asdasdasd:asdasdasd>").Get(r.method)
+	},"Unsupported type asdasdasd in <asdasdasd:asdasdasd>")
+}
+
 func TestRoute(t *testing.T) {
 	suite.Run(t,new(routeSuite))
 }

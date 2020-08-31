@@ -9,12 +9,12 @@ import (
 
 type requestSuite struct {
 	suite.Suite
-	variable map[string]string
+	variable map[string]interface{}
 	req *http.Request
 }
 
 func (r *requestSuite) SetupTest() {
-	r.variable = map[string]string{
+	r.variable = map[string]interface{}{
 		"asd":"asd",
 	}
 

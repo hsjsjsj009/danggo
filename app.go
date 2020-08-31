@@ -27,11 +27,15 @@ func (a *app) ServeHTTP(w http.ResponseWriter, r *http.Request)  {
 	)
 	path := r.URL.Path
 	method := strings.ToUpper(r.Method)
-	pathVar,found ,handlerObj:= ParsePath(path,a.routeHandler)
+	pathVar,found ,handlerObj, err:= ParsePath(path,a.routeHandler)
+	if err != nil {
+		writeError(err.Error(),http.StatusNotFound,w)
+		printLog(method,path,http.StatusNotFound)
+	}
 	if !found {
 		w.WriteHeader(http.StatusNotFound)
 		_, _ = w.Write([]byte("404 Not Found"))
-		PrintLog(method,path,http.StatusNotFound)
+		printLog(method,path,http.StatusNotFound)
 		return
 	}
 
@@ -39,7 +43,7 @@ func (a *app) ServeHTTP(w http.ResponseWriter, r *http.Request)  {
 	handler := handlerObj.handlerFunc[method]
 
 	if handler == nil {
-		PrintLog(method,path,http.StatusNotFound)
+		printLog(method,path,http.StatusNotFound)
 		w.WriteHeader(404)
 		_, _ = w.Write([]byte(fmt.Sprintf("Path %s doesn't accept method %s",path,r.Method)))
 		return
@@ -55,7 +59,7 @@ func (a *app) ServeHTTP(w http.ResponseWriter, r *http.Request)  {
 		if statusCode = responseObj.GetStatusCode(); statusCode == 0 {
 			statusCode = http.StatusFound
 		}
-		PrintLog(method,path,statusCode)
+		printLog(method,path,statusCode)
 		return
 	}
 
@@ -74,11 +78,16 @@ func (a *app) ServeHTTP(w http.ResponseWriter, r *http.Request)  {
 
 	_, _ = w.Write(data)
 
-	PrintLog(method,path,statusCode)
+	printLog(method,path,statusCode)
 }
 
-func PrintLog(method string, path string, code int){
+func printLog(method string, path string, code int){
 	log.Println(fmt.Sprintf("[%s] %s status code %d",method,path,code))
+}
+
+func writeError(message string, code int, w http.ResponseWriter) {
+	w.WriteHeader(code)
+	_, _ = w.Write([]byte(message))
 }
 
 func (a *app) Start(url string) {
