@@ -11,6 +11,7 @@ type requestSuite struct {
 	suite.Suite
 	variable map[string]interface{}
 	req *http.Request
+	writer http.ResponseWriter
 }
 
 func (r *requestSuite) SetupTest() {
@@ -19,17 +20,18 @@ func (r *requestSuite) SetupTest() {
 	}
 
 	r.req = httptest.NewRequest("GET","/asd",nil)
+	r.writer = httptest.NewRecorder()
 }
 
 func (r *requestSuite) TestNewRequest() {
-	obj := newRequest(r.variable,r.req)
+	obj := newRequest(r.variable,r.req,r.writer)
 
 	r.Equal(r.variable,obj.pathVariable)
 	r.Equal(r.req,obj.Request)
 }
 
 func (r *requestSuite) TestGetVariablePath() {
-	obj := newRequest(r.variable,r.req)
+	obj := newRequest(r.variable,r.req,r.writer)
 
 	r.Equal("asd",obj.pathVariable["asd"])
 }

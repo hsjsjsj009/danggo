@@ -29,23 +29,34 @@ func (a *app) ServeHTTP(w http.ResponseWriter, r *http.Request)  {
 	method := strings.ToUpper(r.Method)
 	pathVar,found ,handlerObj, err:= ParsePath(path,a.routeHandler)
 	if err != nil {
-		writeError(err.Error(),http.StatusNotFound,w)
-		printLog(method,path,http.StatusNotFound)
+		writeError(
+			err.Error(),
+			method,
+			path,
+			http.StatusNotFound,
+			w)
+		return
 	}
 	if !found {
-		w.WriteHeader(http.StatusNotFound)
-		_, _ = w.Write([]byte("404 Not Found"))
-		printLog(method,path,http.StatusNotFound)
+		writeError(
+			"404 Not Found",
+			method,
+			path,
+			http.StatusNotFound,
+			w)
 		return
 	}
 
-	requestObj := newRequest(pathVar,r)
+	requestObj := newRequest(pathVar,r,w)
 	handler := handlerObj.handlerFunc[method]
 
 	if handler == nil {
-		printLog(method,path,http.StatusNotFound)
-		w.WriteHeader(404)
-		_, _ = w.Write([]byte(fmt.Sprintf("Path %s doesn't accept method %s",path,r.Method)))
+		writeError(
+			fmt.Sprintf("Path %s doesn't accept method %s",path,r.Method),
+			method,
+			path,
+			http.StatusNotFound,
+			w)
 		return
 	}
 
@@ -85,12 +96,20 @@ func printLog(method string, path string, code int){
 	log.Println(fmt.Sprintf("[%s] %s status code %d",method,path,code))
 }
 
-func writeError(message string, code int, w http.ResponseWriter) {
+func writeError(message string,method string, path string, code int, w http.ResponseWriter) {
 	w.WriteHeader(code)
 	_, _ = w.Write([]byte(message))
+	printLog(method,path,code)
 }
 
-func (a *app) Start(url string) {
+func (a *app) Start(url string, plugins ...func(http.Handler) http.Handler) {
 	log.Println(fmt.Sprintf("Server run in localhost port %s",url))
-	log.Fatal(http.ListenAndServe(url, a))
+	var handler http.Handler = a
+	if len(plugins) != 0 {
+		handler = plugins[0](a)
+		for _,plugin := range plugins[1:] {
+			handler = plugin(handler)
+		}
+	}
+	log.Fatal(http.ListenAndServe(url, handler))
 }

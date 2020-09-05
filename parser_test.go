@@ -34,6 +34,11 @@ func TestCheckVariableType(t *testing.T) {
 			correct: false,
 			errorDataType: "asdsad",
 		},
+		{
+			variable: "<test>",
+			correct: true,
+			errorDataType: "",
+		},
 	}
 
 	for _,test := range testCase {
@@ -61,6 +66,7 @@ func TestParsePath(t *testing.T){
 		"/asd/<asd>/dfg/<dfg>":{pathSplit: []string{"asd","<asd>","dfg","<dfg>"}},
 		"/dasd/<number:int>":{pathSplit: []string{"dasd","<number:int>"}},
 		"/sdfsdfsf/<text:str>":{pathSplit: []string{"sdfsdfsf","<text:str>"}},
+		"/asdasdasd/<correct:bool>":{pathSplit: []string{"asdasdasd","<correct:bool>"}},
 	}
 
 	testCase := []struct{
@@ -127,6 +133,31 @@ func TestParsePath(t *testing.T){
 				"number":12,
 			},
 		},
+		{
+			url: "/sdfsdfsf/12/",
+			path: "/sdfsdfsf/<text:str>",
+			err: nil,
+			founded: true,
+			param: map[string]interface{}{
+				"text":"12",
+			},
+		},
+		{
+			url: "/asdasdasd/true/",
+			path: "/asdasdasd/<correct:bool>",
+			err: nil,
+			founded: true,
+			param: map[string]interface{}{
+				"correct":true,
+			},
+		},
+		{
+			url: "/asdasdasd/dfhdfhdfh/",
+			path: "/asdasdasd/<correct:bool>",
+			err: WrongTypeError("bool"),
+			founded: false,
+			param:nil,
+		},
 	}
 
 	var nilHandler *handler
@@ -135,12 +166,15 @@ func TestParsePath(t *testing.T){
 		param,found,handler, err := ParsePath(test.url,list)
 
 		assertions.Equal(err, test.err)
-		if test.path != "" {
-			assertions.Equal(list[test.path],handler)
-			assertions.Equal(fmt.Sprint(test.param),fmt.Sprint(param))
-		}else{
-			assertions.Equal(nilHandler,handler)
+		if err == nil {
+			if test.path != "" {
+				assertions.Equal(list[test.path],handler)
+				assertions.Equal(fmt.Sprint(test.param),fmt.Sprint(param))
+			}else{
+				assertions.Equal(nilHandler,handler)
+			}
 		}
 		assertions.Equal(test.founded,found)
 	}
 }
+
